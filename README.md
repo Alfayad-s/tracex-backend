@@ -82,6 +82,30 @@ Copy `.env.example` to `.env` and set all required variables.
 - **DATABASE_URL:** PostgreSQL connection string (e.g. Supabase: Project Settings → Database → URI).
 - **JWT_SECRET:** Secret used to sign JWTs; use a long random string in production.
 
+## Deploy to Render
+
+1. **Push this repo to GitHub** (if you haven’t already).
+
+2. **Create a Web Service on Render**
+   - [Dashboard](https://dashboard.render.com) → **New** → **Web Service**.
+   - Connect your GitHub repo (`Alfayad-s/tracex-backend` or the one containing this code).
+   - Render will use the repo’s `render.yaml` if present, or you can set the following manually.
+
+3. **Build & start (if not using `render.yaml`)**
+   - **Build Command:** `npm install && npm run build`
+   - **Start Command:** `npm start`
+   - **Release Command (optional):** `npx prisma migrate deploy` — run so migrations apply on each deploy (only if you use Prisma migrations; if you use `prisma db push` only, skip this and run `prisma db push` once from your machine against the production DB).
+
+4. **Environment variables** (in Render Dashboard → Service → **Environment**)
+   - **DATABASE_URL** — Your PostgreSQL URL (Supabase, Render Postgres, or any Postgres).
+   - **JWT_SECRET** — A long random string (e.g. generate one: `openssl rand -base64 32`).
+
+5. **Node version** — The app uses Node 22+ (`engines` in `package.json`). Render will pick it up; you can set **NODE_VERSION** = `22` if needed.
+
+6. After deploy, your API will be at `https://<your-service-name>.onrender.com`. Health check: `GET https://<your-service-name>.onrender.com/health`.
+
+**Using Render Postgres:** Create a PostgreSQL database in Render, then in the Web Service add **DATABASE_URL** and link it from the database’s **Internal Connection String** (or use Blueprint with `fromDatabase` as in the `render.yaml` comments).
+
 ## Tech Stack
 
 - Node.js 22+, TypeScript (strict), ESM

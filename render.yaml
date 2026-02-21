@@ -1,0 +1,19 @@
+# Render Blueprint — TraceX Backend
+# Deploy: connect this repo in Render Dashboard, or use "New > Blueprint".
+# Set DATABASE_URL and JWT_SECRET in the Dashboard (or use Render Postgres + generateValue for JWT_SECRET).
+
+services:
+  - type: web
+    name: tracex-backend
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    # Run migrations on each deploy (use "prisma db push" only for no-migration setups)
+    preDeployCommand: npx prisma migrate deploy
+    healthCheckPath: /health
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      # Add your PostgreSQL URL in Render Dashboard (Supabase or Render Postgres)
+      - key: DATABASE_URL
+        sync: false
