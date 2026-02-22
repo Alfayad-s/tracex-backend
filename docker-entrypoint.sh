@@ -1,4 +1,9 @@
 #!/bin/sh
 set -e
-npx prisma migrate deploy --skip-generate 2>/dev/null || true
+echo "Running database migrations..."
+if npx prisma migrate deploy --skip-generate; then
+  echo "Migrations completed."
+else
+  echo "Migration failed or skipped (e.g. DIRECT_URL unreachable). Ensure tables exist."
+fi
 exec node dist/server.js

@@ -3,7 +3,7 @@ services:
     image: postgres:16-alpine
     container_name: tracex-postgres
     environment:
-      POSTGRES_USER: tracex
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: tracexdev
       POSTGRES_DB: tracex
     ports:
@@ -11,7 +11,7 @@ services:
     volumes:
       - tracex_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tracex -d tracex"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tracex"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -20,7 +20,8 @@ services:
     build: .
     container_name: tracex-app
     environment:
-      DATABASE_URL: postgresql://tracex:tracexdev@postgres:5432/tracex?schema=public
+      DATABASE_URL: postgresql://postgres.hgrucmiwyvpcfpibnppz:tracexfayad102938@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+      DIRECT_URL: postgresql://postgres.hgrucmiwyvpcfpibnppz:tracexfayad102938@db.hgrucmiwyvpcfpibnppz.supabase.co:5432/postgres?connect_timeout=15
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       PORT: 3000
       NODE_ENV: production
