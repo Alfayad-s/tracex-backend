@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: tracex-postgres
+    environment:
+      POSTGRES_USER: tracex
+      POSTGRES_PASSWORD: tracexdev
+      POSTGRES_DB: tracex
+    ports:
+      - "5432:5432"
+    volumes:
+      - tracex_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tracex -d tracex"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: tracex-app
+    environment:
+      DATABASE_URL: postgresql://tracex:tracexdev@postgres:5432/tracex?schema=public
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      PORT: 3000
+      NODE_ENV: production
+      LOG_LEVEL: info
+      CORS_ORIGIN: "*"
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  tracex_pgdata:
