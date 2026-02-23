@@ -10,6 +10,9 @@ import { env } from './config/env.js';
 
 const app = express();
 
+// Trust first proxy (Railway, Render, load balancers) so X-Forwarded-For is used for rate limiting
+app.set('trust proxy', 1);
+
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: env.corsOrigin }));
 app.use(express.json());
