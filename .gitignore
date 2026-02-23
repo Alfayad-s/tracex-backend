@@ -38,3 +38,6 @@ Thumbs.db
 Task.md
 *.md
 !README.md
+!TASK.md
+!api_doc.md
+!API-FRONTEND.md

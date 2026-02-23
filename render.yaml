@@ -1,0 +1,24 @@
+# Render Blueprint — deploy TraceX backend as a Web Service
+# Docs: https://render.com/docs/blueprint-spec
+# After connecting the repo, create a Blueprint and add env vars in the dashboard (DATABASE_URL, DIRECT_URL, JWT_SECRET, CORS_ORIGIN, etc.)
+
+services:
+  - type: web
+    name: tracex-backend
+    runtime: node
+    region: oregon
+
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm run start
+
+    healthCheckPath: /health
+
+    # Run migrations before each deploy. If Supabase direct (5432) is unreachable from Render, remove this and run migrations manually (see DEPLOY-RENDER.md).
+    # releaseCommand: npx prisma migrate deploy
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: info
+    # Add in Render dashboard: DATABASE_URL, DIRECT_URL, JWT_SECRET, CORS_ORIGIN (and optionally PORT, LOG_LEVEL)

@@ -4,7 +4,7 @@ FROM node:22-bookworm-slim AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci --ignore-scripts 2>/dev/null || npm install
+RUN if [ -f package-lock.json ]; then npm ci --ignore-scripts; else npm install; fi
 
 COPY prisma ./prisma/
 RUN npx prisma generate
@@ -21,7 +21,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates curl && rm -rf /var/lib/apt/lists/*
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 tracex
@@ -32,6 +32,9 @@ COPY --from=builder /app/dist ./dist/
 COPY --from=builder /app/prisma ./prisma/
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
+
+# So Prisma (migrate deploy) and app can write under /app if needed (e.g. engines cache)
+RUN chown -R tracex:nodejs /app
 
 USER tracex
 

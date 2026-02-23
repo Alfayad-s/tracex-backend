@@ -2,13 +2,13 @@ import 'dotenv/config';
 import { app } from './app.js';
 import { logger } from './utils/logger.js';
 import { connectDb, disconnectDb } from './config/db.js';
-
-const PORT = Number(process.env.PORT) || 3000;
+import { validateEnv, env } from './config/env.js';
 
 async function start(): Promise<void> {
+  validateEnv();
   await connectDb();
-  const server = app.listen(PORT, () => {
-    logger.info(`Server listening on http://localhost:${PORT}`);
+  const server = app.listen(env.port, () => {
+    logger.info(`Server listening on http://localhost:${env.port}`);
   });
 
   const shutdown = async (): Promise<void> => {

@@ -1,3 +1,5 @@
+# Use .env for DATABASE_URL, DIRECT_URL, JWT_SECRET (never commit .env).
+# For local Postgres: set DATABASE_URL=postgresql://postgres:tracexdev@postgres:5432/tracex and DIRECT_URL same.
 services:
   postgres:
     image: postgres:16-alpine
@@ -19,19 +21,25 @@ services:
   app:
     build: .
     container_name: tracex-app
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: postgresql://postgres.hgrucmiwyvpcfpibnppz:tracexfayad102938@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true
-      DIRECT_URL: postgresql://postgres.hgrucmiwyvpcfpibnppz:tracexfayad102938@db.hgrucmiwyvpcfpibnppz.supabase.co:5432/postgres?connect_timeout=15
-      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
-      PORT: 3000
+      PORT: ${PORT:-3000}
       NODE_ENV: production
-      LOG_LEVEL: info
-      CORS_ORIGIN: "*"
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:${PORT:-3000}"
     depends_on:
       postgres:
         condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:$${PORT:-3000}/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
 volumes:
   tracex_pgdata:

@@ -1,21 +1,29 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { requestIdMiddleware } from './middleware/requestId.js';
+import { requestLoggerMiddleware } from './middleware/requestLogger.js';
 import { errorMiddleware } from './middleware/error.js';
-import { logger } from './utils/logger.js';
 import routes from './routes/index.js';
+import { env } from './config/env.js';
 
 const app = express();
 
-const corsOrigin = process.env.CORS_ORIGIN ?? '*';
-app.use(cors({ origin: corsOrigin }));
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cors({ origin: env.corsOrigin }));
 app.use(express.json());
 app.use(requestIdMiddleware);
+app.use(requestLoggerMiddleware);
 
-app.use((req, _res, next) => {
-  logger.info({ requestId: req.requestId, method: req.method, path: req.path }, 'request');
-  next();
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { success: false, error: 'Too many requests; try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
+app.use(globalLimiter);
 
 app.use(routes);
 
