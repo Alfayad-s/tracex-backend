@@ -1,0 +1,4 @@
+# Run Node directly so the process receives SIGTERM and no npm log dir is needed.
+# Avoids "npm error signal SIGTERM" and "/nonexistent/.npm/_logs" when behind a proxy.
+[start]
+cmd = "node dist/server.js"

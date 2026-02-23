@@ -106,7 +106,7 @@ This backend uses **Supabase only for PostgreSQL** (data storage). Auth is custo
 **Branch strategy:** Use `main` as the default branch; use feature branches for changes and open PRs. Optional: protect `main` and require PR reviews. **CI:** A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on push/PR to `main` — lint, typecheck, tests, and Docker build. Enable it by pushing the workflow file and ensuring the repo has Actions enabled.
 
 **Deploy:**  
-- **Railway:** Connect repo, set env vars (`DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET`, `CORS_ORIGIN`). Health check path: `/health`. The app listens on `0.0.0.0` and starts the server before connecting to the DB so the health check passes even if the DB is slow or unreachable.  
+- **Railway:** Connect repo, set env vars (`DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET`, `CORS_ORIGIN`). Health check path: `/health`. **Start command:** must be `node dist/server.js` (not `npm start`). The repo has `Procfile`, `railway.toml`, and `nixpacks.toml` set to this. If you still see `npm error signal SIGTERM` or `/nonexistent/.npm/_logs`, set it manually: **Railway dashboard → your service → Settings → Deploy → Start Command** → set to `node dist/server.js` and redeploy.  
 - **AWS:** See **[DEPLOY-AWS.md](./DEPLOY-AWS.md)** for App Runner, Elastic Beanstalk, or ECS Fargate (env vars, migrations, health check).  
 - **Render:** See **[DEPLOY-RENDER.md](./DEPLOY-RENDER.md)** (env vars, build/start commands, optional `render.yaml` Blueprint).
 
