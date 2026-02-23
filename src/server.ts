@@ -5,9 +5,17 @@ import { connectDb, disconnectDb } from './config/db.js';
 import { validateEnv, env } from './config/env.js';
 
 function start(): void {
-  validateEnv();
-  const server = app.listen(env.port, '0.0.0.0', () => {
-    logger.info(`Server listening on http://0.0.0.0:${env.port}`);
+  const port = env.port;
+  const server = app.listen(port, '0.0.0.0', () => {
+    logger.info(`Server listening on http://0.0.0.0:${port}`);
+    try {
+      validateEnv();
+    } catch (e) {
+      logger.error(
+        { err: e },
+        'Startup: missing or invalid env (DATABASE_URL, DIRECT_URL, JWT_SECRET 32+ chars). Set in Railway and redeploy. API will fail until fixed.'
+      );
+    }
     connectDb().catch((e) => {
       logger.error({ err: e }, 'Database connection failed');
     });
